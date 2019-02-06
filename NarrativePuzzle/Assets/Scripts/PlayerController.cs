@@ -23,12 +23,21 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public float checkRadius;
     public LayerMask whatIsGround;
+    public float humanGravityScale;
 
     //Private human variables
     private float moveInput;
     private bool facingRight = true;
     private bool isGrounded;
     private int extraJumps;
+
+    //Water animal variables
+    public float waterSpeed;
+    public float waterAnimalGravityScale;
+
+    //Private animal variables
+    private float waterMoveInputX;
+    private float waterMoveInputY;
 
     //Common private variables
     private Rigidbody2D myRB;
@@ -40,6 +49,9 @@ public class PlayerController : MonoBehaviour
 
         //Setting human jumps
         extraJumps = humanExtraJumps;
+
+        //making the gravity scale always start as the human
+        myRB.gravityScale = humanGravityScale;
     }
 
     void Update()
@@ -82,6 +94,9 @@ public class PlayerController : MonoBehaviour
     //All human moving actions
     void HumanMoving()
     {
+        //Setting human gravity scale
+        myRB.gravityScale = humanGravityScale;
+
         //Setting isGrounded
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
 
@@ -133,7 +148,25 @@ public class PlayerController : MonoBehaviour
     //All water animal actions
     void WaterAnimalMoving()
     {
-        
+        //Setting the gravity scale
+        myRB.gravityScale = waterAnimalGravityScale;
+
+        //Setting the input axis
+        waterMoveInputX = Input.GetAxisRaw("Horizontal");
+        waterMoveInputY = Input.GetAxisRaw("Vertical");
+        //Applying velocity to the character
+        myRB.velocity = new Vector2(waterMoveInputX * waterSpeed, waterMoveInputY * waterSpeed);
+
+        //If the player is moving right
+        if (facingRight == false && moveInput > 0)
+        {
+            Flip();
+        }
+        //If thge player is moving left
+        else if (facingRight == true && moveInput < 0)
+        {
+            Flip();
+        }
     }
 
     //All air animal actions
@@ -156,5 +189,19 @@ public class PlayerController : MonoBehaviour
 
         //sets the scaler to apply here
         transform.localScale = scaler;
+    }
+
+    //Changing the player states depending on their current action
+    void OnTriggerEnter2D(Collider2D theCol)
+    {
+        if (theCol.gameObject.CompareTag("Water"))
+        {
+            playerState = PlayerState.WaterAnimalMoving;
+        }
+
+        if (theCol.gameObject.CompareTag("Ground"))
+        {
+            playerState = PlayerState.HumanMoving;
+        }
     }
 }
