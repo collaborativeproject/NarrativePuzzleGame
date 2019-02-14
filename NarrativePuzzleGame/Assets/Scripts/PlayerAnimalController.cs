@@ -78,4 +78,10 @@ public class PlayerAnimalController : MonoBehaviour
     {
         //Human rotation code
     }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 7);
+    }
 }
