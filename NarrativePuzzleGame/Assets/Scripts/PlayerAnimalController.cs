@@ -30,6 +30,12 @@ public class PlayerAnimalController : MonoBehaviour
     private Vector3 playerDirection;
     private Vector2 playerLookDirection;
 
+    void Awake()
+    {
+        //Getting the Rewired player object for this gameObject and keeping it for the characters lifetime
+        character = ReInput.players.GetPlayer(playerID);
+    }
+
     void Start()
     {
         //Simply setting things at the start
@@ -55,6 +61,7 @@ public class PlayerAnimalController : MonoBehaviour
 
     void FixedUpdate()
     {
+        //applies the velocity to the rigidbody
         myRB.velocity = moveVelocity;
     }
 
@@ -64,6 +71,7 @@ public class PlayerAnimalController : MonoBehaviour
         moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
         //giving the player velocity
         moveVelocity = moveInput * moveSpeed;
+        Debug.Log("Zoinks");
     }
 
     void HumanRotation()
