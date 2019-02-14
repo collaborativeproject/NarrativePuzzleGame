@@ -52,5 +52,10 @@
         "ProjectSettings/":true,
         "temp/":true,
         "Temp/":true
+    },
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#0F3332",
+        "titleBar.activeBackground": "#154747",
+        "titleBar.activeForeground": "#F5FCFC"
     }
 }
