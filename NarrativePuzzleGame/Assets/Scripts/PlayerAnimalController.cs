@@ -21,6 +21,12 @@ public class PlayerAnimalController : MonoBehaviour
     [Header("Human variables")]
     public float moveSpeed;
 
+    [Header("Rabbit variables")]
+    public float rabbitSpeed;
+
+    [Header("Turtle variables")]
+    public float turtleSpeed;
+
     //Private variables
     private Player character;
     private Rigidbody myRB;
@@ -53,9 +59,14 @@ public class PlayerAnimalController : MonoBehaviour
         {
             //Human player states
             case PlayerStates.HumanMoving:
-            HumanMovement();
-            HumanRotation();
-            break;
+                HumanMovement();
+                HumanRotation();
+                break;
+
+            case PlayerStates.RabbitMoving:
+                RabbitMovement();
+                RabbitDig();
+                break;
         }
     }
 
@@ -65,8 +76,11 @@ public class PlayerAnimalController : MonoBehaviour
         myRB.velocity = moveVelocity;
     }
 
+    //All human movement code and world interaction
     void HumanMovement()
     {
+        //Setting the Human material colour
+        this.GetComponent<MeshRenderer>().material.color = Color.black;
         //Setting the vector3 equal to the inputs
         moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
         //giving the player velocity
@@ -77,6 +91,49 @@ public class PlayerAnimalController : MonoBehaviour
     void HumanRotation()
     {
         //Human rotation code
+    }
+
+    //All rabbit movement code and world interaction
+    void RabbitMovement()
+    {
+        //Setting the Human material colour
+        this.GetComponent<MeshRenderer>().material.color = Color.white;
+        //Setting the vector3 equal to the inputs
+        moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
+        //giving the player velocity
+        moveVelocity = moveInput * rabbitSpeed;
+    }
+
+    void RabbitDig()
+    {
+
+    }
+
+    //All turtle movement code and world interaction 
+    void TurtleMovement()
+    {
+        //Setting the Human material colour
+        this.GetComponent<MeshRenderer>().material.color = Color.green;
+        //Setting the vector3 equal to the inputs
+        moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
+        //giving the player velocity
+        moveVelocity = moveInput * turtleSpeed;
+    }
+
+    private void OnTriggerStay(Collider theCol)
+    {
+        if (theCol.gameObject.CompareTag("BearCave"))
+        {
+            playerStates = PlayerStates.RabbitMoving;
+        }
+    }
+
+    private void OnTriggerExit(Collider theCol)
+    {
+        if (theCol.gameObject.CompareTag("BearCave"))
+        {
+            playerStates = PlayerStates.HumanMoving;
+        }
     }
 
     void OnDrawGizmos()
