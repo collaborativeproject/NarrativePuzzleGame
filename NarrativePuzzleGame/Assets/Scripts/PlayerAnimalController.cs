@@ -20,12 +20,22 @@ public class PlayerAnimalController : MonoBehaviour
 
     [Header("Human variables")]
     public float moveSpeed;
+    public GameObject humanMesh;
 
     [Header("Rabbit variables")]
     public float rabbitSpeed;
+    public GameObject rabbitMesh;
 
     [Header("Turtle variables")]
     public float turtleSpeed;
+    public GameObject turtleMesh;
+    
+    [Header("Turtle variables")]
+    public float deerSpeed;
+
+    [Header("Gems")]
+    public GameObject gemOneGO;
+    public Rigidbody gemOneRB;
 
     //Private variables
     private Player character;
@@ -57,17 +67,46 @@ public class PlayerAnimalController : MonoBehaviour
     {
         switch (playerStates)
         {
-            //Human player states
+            //Human states
             case PlayerStates.HumanMoving:
-                HumanMovement();
-                HumanRotation();
+            HumanMesh();
+            HumanMovement();
+            HumanRotation();
                 break;
 
+            //Rabbit states
             case PlayerStates.RabbitMoving:
-                RabbitMovement();
-                RabbitDig();
+            RabbitMesh();
+            RabbitMovement();
+            RabbitDig();
+                break;
+
+            //Turtle states
+            case PlayerStates.TurtleMoving:
+            TurtleMesh();
+            TurtleMovement();
+            TurtlePush();
+                break;
+
+            //Deer states
+            case PlayerStates.DeerMoving:
+            DeerMovement();
+            DeerPickup();
                 break;
         }
+
+        if (playerStates == PlayerStates.TurtleMoving)
+        {
+            gemOneRB.mass = 0.1f;
+            gemOneRB.drag = 0;
+        }
+        else
+        {
+            gemOneRB.mass = 100f;
+            gemOneRB.drag = 100f;
+        }
+
+        Flip();
     }
 
     void FixedUpdate()
@@ -76,16 +115,25 @@ public class PlayerAnimalController : MonoBehaviour
         myRB.velocity = moveVelocity;
     }
 
-    //All human movement code and world interaction
+    /*
+    *
+    * ALL CODE RELATED TO HUMAN GOES HERE
+    *
+    */
+    void HumanMesh()
+    {
+        //Setting human mesh active
+        humanMesh.SetActive(true);
+        rabbitMesh.SetActive(false);
+        turtleMesh.SetActive(false);
+    }
+
     void HumanMovement()
     {
-        //Setting the Human material colour
-        this.GetComponent<MeshRenderer>().material.color = Color.black;
         //Setting the vector3 equal to the inputs
         moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
-        //giving the player velocity
+        //giving the player velocity and multiplies it by human speed
         moveVelocity = moveInput * moveSpeed;
-        Debug.Log("Zoinks");
     }
 
     void HumanRotation()
@@ -93,14 +141,31 @@ public class PlayerAnimalController : MonoBehaviour
         //Human rotation code
     }
 
-    //All rabbit movement code and world interaction
+    /*
+    *
+    * ALL HUMAN CODE ENDS HERE
+    *
+    */
+
+
+    /*
+    *
+    * ALL CODE RELATED TO RABBIT GOES HERE
+    *
+    */
+    void RabbitMesh()
+    {
+        //Setting rabbit mesh active
+        rabbitMesh.SetActive(true);
+        humanMesh.SetActive(false);
+        turtleMesh.SetActive(false);
+    }
+
     void RabbitMovement()
     {
-        //Setting the Human material colour
-        this.GetComponent<MeshRenderer>().material.color = Color.white;
         //Setting the vector3 equal to the inputs
         moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
-        //giving the player velocity
+        //giving the player velocity and multiplies it by rabbit speed
         moveVelocity = moveInput * rabbitSpeed;
     }
 
@@ -109,30 +174,117 @@ public class PlayerAnimalController : MonoBehaviour
 
     }
 
-    //All turtle movement code and world interaction 
+    /*
+    *
+    * ALL RABBIT CODE ENDS HERE
+    *
+    */
+
+
+    /*
+    *
+    * ALL CODE RELATED TO TURTLE GOES HERE
+    *
+    */
+    void TurtleMesh()
+    {
+        //Setting turtle mesh active
+        turtleMesh.SetActive(true);
+        humanMesh.SetActive(false);
+        rabbitMesh.SetActive(false);
+    }
+
     void TurtleMovement()
     {
-        //Setting the Human material colour
-        this.GetComponent<MeshRenderer>().material.color = Color.green;
         //Setting the vector3 equal to the inputs
         moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
-        //giving the player velocity
+        //giving the player velocity and multiplies it by turtle speed
         moveVelocity = moveInput * turtleSpeed;
     }
 
+    void TurtlePush()
+    {
+
+    }
+
+    /*
+    *
+    * ALL TURTLE CODE ENDS HERE
+    *
+    */
+
+    /*
+    *
+    * ALL CODE RELATED TO DEER GOES HERE
+    *
+    */
+
+    void DeerMovement()
+    {
+        //Setting the vector3 equal to the inputs
+        moveInput = new Vector3(character.GetAxisRaw("MoveHorizontal"), 0f, character.GetAxisRaw("MoveVertical"));
+        //giving the player velocity and multiplies it by turtle speed
+        moveVelocity = moveInput * deerSpeed;
+    }
+
+    void DeerPickup()
+    {
+
+    }
+
+    /*
+    *
+    * ALL DEER CODE ENDS HERE
+    *
+    */
+
     private void OnTriggerStay(Collider theCol)
     {
+        //If the player is close to the bear cave then they trasnform into a rabbit
         if (theCol.gameObject.CompareTag("BearCave"))
         {
             playerStates = PlayerStates.RabbitMoving;
+        }
+
+        //If the player is close to water then they transform into a turtle
+        if (theCol.gameObject.CompareTag("Water"))
+        {
+            playerStates = PlayerStates.TurtleMoving;
         }
     }
 
     private void OnTriggerExit(Collider theCol)
     {
+        //If the player leaves the bear cave
         if (theCol.gameObject.CompareTag("BearCave"))
         {
             playerStates = PlayerStates.HumanMoving;
+        }
+
+        //If the player leaves the water
+        if (theCol.gameObject.CompareTag("Water"))
+        {
+            playerStates = PlayerStates.HumanMoving;
+        }
+    }
+
+    void Flip()
+    {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            transform.eulerAngles = new Vector3(0, -90, 0);
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            transform.eulerAngles = new Vector3(0, 90, 0);
+        }
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            transform.eulerAngles = new Vector3(0, 0, 0);
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
         }
     }
 
